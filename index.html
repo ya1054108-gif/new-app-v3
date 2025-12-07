@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Travel Pro</title>
     
-    <!-- 引入外部函式庫 -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Tailwind 設定 -->
     <script>
         tailwind.config = {
             theme: {
@@ -31,20 +29,8 @@
         }
     </script>
 
-    <!-- CSS 樣式 -->
     <style>
-        html, body { 
-            margin: 0; 
-            padding: 0; 
-            width: 100%; 
-            height: 100%; 
-            overflow: hidden; 
-            background-color: #111; 
-            font-family: -apple-system, "PingFang TC", sans-serif; 
-            -webkit-font-smoothing: antialiased; 
-            overscroll-behavior: none; 
-            touch-action: manipulation; 
-        }
+        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #111; font-family: -apple-system, "PingFang TC", sans-serif; -webkit-font-smoothing: antialiased; overscroll-behavior: none; touch-action: manipulation; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .glass-panel { background: rgba(42, 47, 58, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.1); }
@@ -54,6 +40,14 @@
         .slide-in-left { animation: slideInLeft 0.3s ease-out; }
         @keyframes slideInLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }
         .progress-bar { transition: width 0.5s ease-in-out; }
+        
+        /* 強制 iOS Date Input 樣式一致 */
+        input[type="date"] {
+            -webkit-appearance: none;
+            appearance: none;
+            display: block;
+            min-height: 3rem; /* 48px */
+        }
     </style>
 </head>
 <body class="flex justify-center w-full">
@@ -103,7 +97,6 @@
             
             <!-- 1. 行程視圖 -->
             <div v-if="viewMode === 'itinerary'" class="space-y-4">
-                <!-- 機票卡片 -->
                 <div v-if="showFlightPass" class="bg-card rounded-2xl shadow-lg overflow-hidden mb-2 border border-white/10">
                     <div class="flex bg-black/30 border-b border-white/5">
                         <button @click="flightMode='outbound'" class="flex-1 py-1.5 text-[10px] font-bold tracking-wider text-center transition" :class="flightMode==='outbound'?'text-accentBlue bg-white/10':'text-textSub/30'">去程 OUTBOUND</button>
@@ -135,13 +128,11 @@
                     </div>
                     <div class="flex-1 pb-4 min-w-0">
                         <div @click="openEditModal(item)" class="bg-card p-3 rounded-xl border border-white/5 active:scale-[0.98] transition cursor-pointer hover:border-accentGold/50">
-                            <!-- 交通資訊 -->
                             <div v-if="item.transportLine || item.transportTime" class="mb-2 pb-2 border-b border-white/5 flex items-center gap-2">
                                 <div class="bg-bg px-2 py-1 rounded text-[10px] text-textSub/70 border border-white/10 flex items-center gap-1"><i class="fas fa-train text-accentBlue"></i><span class="font-bold">{{ item.transportLine || '移動' }}</span></div>
                                 <div class="text-[10px] text-textSub/40" v-if="item.transportTime">約 {{ item.transportTime }} 分鐘</div>
                                 <div class="flex-1"></div><div class="text-[10px] text-accentGold font-bold">前往此處 <i class="fas fa-arrow-down ml-1"></i></div>
                             </div>
-                            <!-- 一般資訊 -->
                             <div class="flex justify-between items-start mb-1">
                                 <h3 class="font-bold text-base truncate pr-2">{{ item.title }}</h3>
                                 <button @click.stop="openGoogleMap(item.location || item.title)" class="shrink-0 flex items-center gap-1 bg-accentBlue/10 px-2 py-1 rounded text-[10px] font-bold text-accentBlue hover:bg-accentBlue hover:text-white transition"><i class="fas fa-map-marked-alt"></i> 地圖</button>
@@ -196,18 +187,9 @@
 
                 <div class="bg-card p-4 rounded-xl border border-white/10">
                     <div class="text-xs font-bold text-textSub/50 mb-3 uppercase">新增消費 (JPY)</div>
-                    
-                    <!-- 分類選擇 -->
                     <div class="grid grid-cols-4 gap-2 mb-3">
-                        <button v-for="(cat, key) in expenseCategories" :key="key" 
-                            @click="newExpense.category = key"
-                            class="py-2 rounded-lg border flex flex-col items-center justify-center transition-all"
-                            :class="newExpense.category === key ? 'bg-white/10 border-white text-white' : 'border-white/10 text-textSub/30 hover:bg-white/5'">
-                            <i :class="cat.icon" class="mb-1" :style="{color: newExpense.category === key ? cat.color : ''}"></i>
-                            <span class="text-[10px]">{{ cat.label }}</span>
-                        </button>
+                        <button v-for="(cat, key) in expenseCategories" :key="key" @click="newExpense.category = key" class="py-2 rounded-lg border flex flex-col items-center justify-center transition-all" :class="newExpense.category === key ? 'bg-white/10 border-white text-white' : 'border-white/10 text-textSub/30 hover:bg-white/5'"><i :class="cat.icon" class="mb-1" :style="{color: newExpense.category === key ? cat.color : ''}"></i><span class="text-[10px]">{{ cat.label }}</span></button>
                     </div>
-
                     <div class="grid grid-cols-3 gap-2 mb-3">
                         <input v-model="newExpense.title" class="col-span-2 bg-bg border border-border rounded-lg px-3 py-3 text-sm text-white placeholder-white/30" placeholder="項目 (如: 拉麵)">
                         <input v-model="newExpense.amount" type="number" class="bg-bg border border-border rounded-lg px-3 py-3 text-sm text-white placeholder-white/30 font-mono" placeholder="¥">
@@ -224,23 +206,10 @@
                     <div class="space-y-2">
                         <div v-for="exp in currentTrip.expenses" :key="exp.id" class="bg-card p-3 rounded-lg flex justify-between items-center border border-white/5">
                             <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shadow-sm shrink-0 border border-white/10" 
-                                     :style="{backgroundColor: expenseCategories[exp.category || 'other'].color + '20', color: expenseCategories[exp.category || 'other'].color}">
-                                    <i :class="expenseCategories[exp.category || 'other'].icon"></i>
-                                </div>
-                                <div>
-                                    <div class="font-bold text-sm">{{ exp.title }}</div>
-                                    <div class="text-[10px] text-textSub/50 flex gap-2">
-                                        <span>{{ exp.payer }} 墊付</span>
-                                        <span>•</span>
-                                        <span>{{ exp.date }}</span>
-                                    </div>
-                                </div>
+                                <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shadow-sm shrink-0 border border-white/10" :style="{backgroundColor: expenseCategories[exp.category || 'other'].color + '20', color: expenseCategories[exp.category || 'other'].color}"><i :class="expenseCategories[exp.category || 'other'].icon"></i></div>
+                                <div><div class="font-bold text-sm">{{ exp.title }}</div><div class="text-[10px] text-textSub/50 flex gap-2"><span>{{ exp.payer }} 墊付</span><span>•</span><span>{{ exp.date }}</span></div></div>
                             </div>
-                            <div class="text-right shrink-0">
-                                <div class="font-mono font-bold text-accentGold">¥ {{ Number(exp.amount).toLocaleString() }}</div>
-                                <div class="text-[10px] text-textSub/40 font-mono">≈ NT$ {{ Math.round(exp.amount * currentTrip.exchangeRate).toLocaleString() }}</div>
-                            </div>
+                            <div class="text-right shrink-0"><div class="font-mono font-bold text-accentGold">¥ {{ Number(exp.amount).toLocaleString() }}</div><div class="text-[10px] text-textSub/40 font-mono">≈ NT$ {{ Math.round(exp.amount * currentTrip.exchangeRate).toLocaleString() }}</div></div>
                             <button @click="deleteExpense(exp.id)" class="text-textSub/20 hover:text-red-500 ml-2 p-2"><i class="fas fa-times"></i></button>
                         </div>
                     </div>
@@ -296,16 +265,12 @@
                                     <option value="步行">步行</option><option value="計程車">計程車</option>
                                 </select>
                             </div>
-                            <div>
-                                <label class="text-[10px] text-textSub/50 block mb-1">耗時 (分)</label>
-                                <input v-model="form.transportTime" type="number" class="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm text-white" placeholder="Min">
-                            </div>
+                            <div><label class="text-[10px] text-textSub/50 block mb-1">耗時 (分)</label><input v-model="form.transportTime" type="number" class="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm text-white" placeholder="Min"></div>
                         </div>
                     </div>
 
                     <input v-if="form.type !== 'transport'" v-model="form.location" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white placeholder-white/30" placeholder="地點 (供地圖搜尋)...">
                     <textarea v-model="form.notes" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white placeholder-white/30 h-20 resize-none" placeholder="備註..."></textarea>
-                    
                     <button @click="saveItinerary" class="w-full bg-accentBlue text-white font-bold py-3 rounded-lg mt-2 hover:bg-blue-600 transition">儲存</button>
                     <button v-if="form.id" @click="deleteItinerary" class="w-full text-red-500 py-2 text-sm hover:text-red-400">刪除此行程</button>
                 </div>
@@ -315,18 +280,18 @@
         <!-- 2. 住宿編輯 -->
         <div v-if="isHotelModalOpen" class="fixed bottom-0 left-0 w-full z-50 p-4 transition-transform duration-300 flex justify-center"><div class="bg-card w-full max-w-[480px] rounded-2xl p-5 shadow-2xl border border-white/10 max-h-[80vh] overflow-y-auto"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold text-accentGold">{{ hotelForm.id ? '編輯住宿' : '新增住宿' }}</h3><button @click="isHotelModalOpen = false" class="text-textSub/50 hover:text-white"><i class="fas fa-times text-xl"></i></button></div><div class="space-y-3"><input v-model="hotelForm.name" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white placeholder-white/30" placeholder="飯店名稱"><input v-model="hotelForm.address" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white placeholder-white/30" placeholder="地址"><input v-model="hotelForm.price" type="number" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white placeholder-white/30 font-mono" placeholder="總價格 (¥)"><div class="grid grid-cols-2 gap-3"><input v-model="hotelForm.checkInDate" class="bg-bg border border-border rounded-lg px-3 py-2 text-white text-xs" placeholder="入: 12/01"><input v-model="hotelForm.checkInTime" class="bg-bg border border-border rounded-lg px-3 py-2 text-white text-xs font-mono" placeholder="15:00"></div><div class="grid grid-cols-2 gap-3"><input v-model="hotelForm.checkOutDate" class="bg-bg border border-border rounded-lg px-3 py-2 text-white text-xs" placeholder="退: 12/02"><input v-model="hotelForm.checkOutTime" class="bg-bg border border-border rounded-lg px-3 py-2 text-white text-xs font-mono" placeholder="11:00"></div><label class="flex items-center gap-2 cursor-pointer mt-2"><input type="checkbox" v-model="hotelForm.isFreeCancel" class="w-4 h-4 accent-accentGold"><span class="text-sm text-white">免費取消政策</span></label><input v-if="hotelForm.isFreeCancel" v-model="hotelForm.cancelDate" class="w-full bg-bg border border-border rounded-lg px-3 py-2 text-white text-sm" placeholder="取消期限 (例如: 11/30 18:00)"><button @click="saveHotel" class="w-full bg-accentBlue text-white font-bold py-3 rounded-lg mt-2 hover:bg-blue-600 transition">儲存</button></div></div></div>
 
-        <!-- 3. 設定 Modal -->
+        <!-- 3. 設定 Modal (修正樣式) -->
         <div v-if="isSettingsOpen" class="fixed bottom-0 left-0 w-full z-50 p-4 transition-transform duration-300 flex justify-center">
-            <div class="bg-card w-full max-w-[480px] rounded-2xl p-5 shadow-2xl border border-white/10">
+            <div class="bg-card w-full max-w-[480px] rounded-2xl p-5 shadow-2xl border border-white/10 max-h-[85vh] overflow-y-auto">
                 <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold text-accentGold">旅程設定</h3><button @click="isSettingsOpen = false" class="text-textSub/50 hover:text-white"><i class="fas fa-times text-xl"></i></button></div>
                 <div class="space-y-3">
-                    <div><label class="text-xs text-textSub/50 block mb-1">旅程名稱</label><input v-model="settingsForm.name" class="w-full bg-bg border border-border rounded-lg px-3 py-2 text-white"></div>
-                    <div><label class="text-xs text-textSub/50 block mb-1">出發日期</label><input type="date" v-model="settingsForm.startDate" class="w-full bg-bg border border-border rounded-lg px-3 py-2 text-white font-mono"></div>
-                    <div><label class="text-xs text-textSub/50 block mb-1">天數</label><input type="number" v-model="settingsForm.daysCount" class="w-full bg-bg border border-border rounded-lg px-3 py-2 text-white font-mono"></div>
-                    <div><label class="text-xs text-textSub/50 block mb-1">封面圖片網址</label><input v-model="settingsForm.coverImage" class="w-full bg-bg border border-border rounded-lg px-3 py-2 text-white text-xs"></div>
+                    <div><label class="text-xs text-textSub/50 block mb-1">旅程名稱</label><input v-model="settingsForm.name" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white"></div>
+                    <div><label class="text-xs text-textSub/50 block mb-1">出發日期</label><input type="date" v-model="settingsForm.startDate" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white font-mono appearance-none"></div>
+                    <div><label class="text-xs text-textSub/50 block mb-1">天數</label><input type="number" v-model="settingsForm.daysCount" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white font-mono"></div>
+                    <div><label class="text-xs text-textSub/50 block mb-1">封面圖片網址</label><input v-model="settingsForm.coverImage" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white text-xs"></div>
                     <div class="grid grid-cols-2 gap-2">
-                        <div><label class="text-xs text-textSub/50 block mb-1">匯率 (JPY to TWD)</label><input v-model="settingsForm.exchangeRate" type="number" step="0.001" class="w-full bg-bg border border-border rounded-lg px-3 py-2 text-white font-mono"></div>
-                        <div><label class="text-xs text-textSub/50 block mb-1">總預算 (TWD)</label><input v-model="settingsForm.budget" type="number" class="w-full bg-bg border border-border rounded-lg px-3 py-2 text-white font-mono"></div>
+                        <div><label class="text-xs text-textSub/50 block mb-1">匯率 (JPY to TWD)</label><input v-model="settingsForm.exchangeRate" type="number" step="0.001" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white font-mono h-12"></div>
+                        <div><label class="text-xs text-textSub/50 block mb-1">總預算 (TWD)</label><input v-model="settingsForm.budget" type="number" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white font-mono h-12"></div>
                     </div>
                     <button @click="saveSettings" class="w-full bg-accentGold text-bg font-bold py-3 rounded-lg mt-4 hover:bg-yellow-600 transition">確定修改</button>
                     <button @click="deleteTrip" class="w-full text-red-500 py-2 text-sm mt-2">刪除此旅程</button>
@@ -339,7 +304,6 @@
 
     </div>
 
-    <!-- Script Logic -->
     <script>
         const { createApp, ref, computed, onMounted } = Vue;
 
@@ -372,30 +336,23 @@
                     if (!currentTrip.value.flight[flightMode.value]) currentTrip.value.flight[flightMode.value] = {};
                     return currentTrip.value.flight[flightMode.value];
                 });
+                
                 const sortedItinerary = computed(() => {
                     const list = currentTrip.value.itinerary || [];
                     return list.filter(item => { const itemDay = (item.day !== undefined) ? item.day : 0; return itemDay === currentDayIndex.value; }).sort((a, b) => (a.time || '00:00').localeCompare(b.time || '00:00'));
                 });
 
-                // Budget Stats
-                const categoryStats = computed(() => {
-                    const stats = { food: {spent:0}, drink: {spent:0}, play: {spent:0}, other: {spent:0} };
-                    const rate = currentTrip.value.exchangeRate || 0.215;
-                    (currentTrip.value.expenses||[]).forEach(e => {
-                        const cat = e.category || 'other';
-                        if(stats[cat]) stats[cat].spent += Number(e.amount) * rate;
-                    });
-                    return stats;
-                });
                 const totalExpense = computed(() => {
                     const jpy = (currentTrip.value.expenses || []).reduce((sum, item) => sum + Number(item.amount), 0);
                     return { jpy, twd: Math.round(jpy * (currentTrip.value.exchangeRate || 0.215)) };
                 });
+
                 const budgetPercentage = computed(() => {
                     if (!currentTrip.value.budget || currentTrip.value.budget == 0) return 0;
                     const pct = (totalExpense.value.twd / currentTrip.value.budget) * 100;
                     return Math.min(100, Math.max(0, pct)).toFixed(1);
                 });
+
                 const budgetColor = computed(() => {
                     const pct = budgetPercentage.value;
                     if (pct < 50) return '#10B981'; // Green
@@ -404,12 +361,12 @@
                 });
 
                 const loadData = () => {
-                    const saved = localStorage.getItem('travel_app_web_v14'); // Version Updated
+                    const saved = localStorage.getItem('travel_app_web_v15'); // Version Updated
                     if (saved) {
                         try { trips.value = JSON.parse(saved); if (trips.value.length > 0) currentTripId.value = trips.value[0].id; else createNewTrip(); } catch (e) { createNewTrip(); }
                     } else { createNewTrip(); }
                 };
-                const saveData = () => localStorage.setItem('travel_app_web_v14', JSON.stringify(trips.value));
+                const saveData = () => localStorage.setItem('travel_app_web_v15', JSON.stringify(trips.value));
                 const getTypeConfig = (type) => typeConfig[type] || typeConfig.sightseeing;
                 const getDisplayDate = (dayIdx) => { if (!currentTrip.value.startDate) return `D${dayIdx + 1}`; const date = new Date(currentTrip.value.startDate); date.setDate(date.getDate() + dayIdx); return `${date.getMonth() + 1}/${date.getDate()}`; };
                 const openGoogleMap = (query) => { if(!query) return alert('請輸入地點'); window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, '_blank'); };
@@ -482,3 +439,5 @@
             }
         }).mount('#app');
     </script>
+</body>
+</html>
