@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Travel Pro</title>
+    <title>Travel Pro v18</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
@@ -114,7 +114,7 @@
 
                 <div v-if="sortedItinerary.length === 0" class="text-center text-white/30 py-10"><p class="text-sm">尚未安排行程，點擊右下角 + 新增</p></div>
 
-                <div v-for="item in sortedItinerary" :key="item.id" class="flex gap-3 relative group">
+                <div v-for="(item, index) in sortedItinerary" :key="item.id" class="flex gap-3 relative group">
                     <div class="w-12 pt-4 text-right shrink-0 font-mono text-sm font-bold text-accentGold">{{ item.time }}</div>
                     <div class="relative flex flex-col items-center">
                         <div class="w-3 h-3 rounded-full border-2 border-bg z-10 mt-5" :style="{ backgroundColor: getTypeConfig(item.type).color }"></div>
@@ -122,16 +122,30 @@
                     </div>
                     <div class="flex-1 pb-4 min-w-0">
                         <div @click="openEditModal(item)" class="bg-card p-3 rounded-xl border border-white/5 active:scale-[0.98] transition cursor-pointer hover:border-accentGold/50">
-                            <!-- 交通資訊 -->
+                            
+                            <!-- 交通資訊 Header -->
                             <div v-if="item.transportLine || item.transportTime" class="mb-2 pb-2 border-b border-white/5 flex items-center gap-2">
-                                <div class="bg-bg px-2 py-1 rounded text-[10px] text-textSub/70 border border-white/10 flex items-center gap-1"><i class="fas fa-train text-accentBlue"></i><span class="font-bold">{{ item.transportLine || '移動' }}</span></div>
+                                <div class="bg-bg px-2 py-1 rounded text-[10px] text-textSub/70 border border-white/10 flex items-center gap-1">
+                                    <i class="fas fa-train text-accentBlue"></i>
+                                    <span class="font-bold">{{ item.transportLine || '移動' }}</span>
+                                </div>
                                 <div class="text-[10px] text-textSub/40" v-if="item.transportTime">約 {{ item.transportTime }} 分鐘</div>
-                                <div class="flex-1"></div><div class="text-[10px] text-accentGold font-bold">前往此處 <i class="fas fa-arrow-down ml-1"></i></div>
                             </div>
+                            
                             <!-- 一般資訊 -->
                             <div class="flex justify-between items-start mb-1">
                                 <h3 class="font-bold text-base truncate pr-2">{{ item.title }}</h3>
-                                <button @click.stop="openGoogleMap(item.location || item.title)" class="shrink-0 flex items-center gap-1 bg-accentBlue/10 px-2 py-1 rounded text-[10px] font-bold text-accentBlue hover:bg-accentBlue hover:text-white transition"><i class="fas fa-map-marked-alt"></i> 地圖</button>
+                                <div class="flex gap-1">
+                                    <!-- Google Maps 搜尋按鈕 -->
+                                    <button @click.stop="openGoogleMap(item.location || item.title)" class="shrink-0 flex items-center gap-1 bg-accentBlue/10 px-2 py-1 rounded text-[10px] font-bold text-accentBlue hover:bg-accentBlue hover:text-white transition">
+                                        <i class="fas fa-map-marker-alt"></i> 地點
+                                    </button>
+                                    
+                                    <!-- 路線規劃按鈕 (第二站之後才顯示) -->
+                                    <button v-if="index > 0" @click.stop="openRouteMap(item)" class="shrink-0 flex items-center gap-1 bg-accentTeal/10 px-2 py-1 rounded text-[10px] font-bold text-accentTeal hover:bg-accentTeal hover:text-white transition">
+                                        <i class="fas fa-route"></i> 路線
+                                    </button>
+                                </div>
                             </div>
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-[10px] px-1.5 py-0.5 rounded bg-bg text-textSub/70 border border-white/5">{{ getTypeConfig(item.type).label }}</span>
@@ -254,18 +268,14 @@
                         <input v-model="form.title" class="flex-1 bg-bg border border-border rounded-lg px-3 py-3 text-white placeholder-white/30" placeholder="行程標題 (必填)">
                     </div>
 
-                    <!-- 交通專用欄位 -->
+                    <!-- 交通專用欄位 (手動輸入改版) -->
                     <div class="bg-bg/50 p-3 rounded-xl border border-white/5 space-y-3">
                         <div class="text-xs text-accentBlue font-bold">前往此處的交通</div>
                         <div class="grid grid-cols-2 gap-2">
                             <div>
                                 <label class="text-[10px] text-textSub/50 block mb-1">方式/路線</label>
-                                <select v-model="form.transportLine" class="w-full bg-bg border border-border rounded-lg px-2 py-2 text-sm text-white appearance-none">
-                                    <option value="" disabled>選擇或手動輸入...</option>
-                                    <optgroup label="關東 Kanto"><option v-for="line in transitData.kanto" :key="line" :value="line">{{ line }}</option></optgroup>
-                                    <optgroup label="關西 Kansai"><option v-for="line in transitData.kansai" :key="line" :value="line">{{ line }}</option></optgroup>
-                                    <option value="步行">步行</option><option value="計程車">計程車</option>
-                                </select>
+                                <!-- 修改為純文字輸入 -->
+                                <input v-model="form.transportLine" class="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm text-white placeholder-white/30" placeholder="如: JR山陰本線, 巴士205">
                             </div>
                             <div>
                                 <label class="text-[10px] text-textSub/50 block mb-1">耗時 (分)</label>
@@ -286,7 +296,7 @@
         <!-- 2. 住宿編輯 -->
         <div v-if="isHotelModalOpen" class="fixed bottom-0 left-0 w-full z-50 p-4 transition-transform duration-300 flex justify-center"><div class="bg-card w-full max-w-[480px] rounded-2xl p-5 shadow-2xl border border-white/10 max-h-[80vh] overflow-y-auto"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold text-accentGold">{{ hotelForm.id ? '編輯住宿' : '新增住宿' }}</h3><button @click="isHotelModalOpen = false" class="text-textSub/50 hover:text-white"><i class="fas fa-times text-xl"></i></button></div><div class="space-y-3"><input v-model="hotelForm.name" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white placeholder-white/30" placeholder="飯店名稱"><input v-model="hotelForm.address" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white placeholder-white/30" placeholder="地址"><input v-model="hotelForm.price" type="number" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white placeholder-white/30 font-mono" placeholder="總價格 (¥)"><div class="grid grid-cols-2 gap-3"><input v-model="hotelForm.checkInDate" class="bg-bg border border-border rounded-lg px-3 py-2 text-white text-xs" placeholder="入: 12/01"><input v-model="hotelForm.checkInTime" class="bg-bg border border-border rounded-lg px-3 py-2 text-white text-xs font-mono" placeholder="15:00"></div><div class="grid grid-cols-2 gap-3"><input v-model="hotelForm.checkOutDate" class="bg-bg border border-border rounded-lg px-3 py-2 text-white text-xs" placeholder="退: 12/02"><input v-model="hotelForm.checkOutTime" class="bg-bg border border-border rounded-lg px-3 py-2 text-white text-xs font-mono" placeholder="11:00"></div><label class="flex items-center gap-2 cursor-pointer mt-2"><input type="checkbox" v-model="hotelForm.isFreeCancel" class="w-4 h-4 accent-accentGold"><span class="text-sm text-white">免費取消政策</span></label><input v-if="hotelForm.isFreeCancel" v-model="hotelForm.cancelDate" class="w-full bg-bg border border-border rounded-lg px-3 py-2 text-white text-sm" placeholder="取消期限 (例如: 11/30 18:00)"><button @click="saveHotel" class="w-full bg-accentBlue text-white font-bold py-3 rounded-lg mt-2 hover:bg-blue-600 transition">儲存</button></div></div></div>
 
-        <!-- 3. 設定 Modal (含備份功能) -->
+        <!-- 3. 設定 Modal -->
         <div v-if="isSettingsOpen" class="fixed bottom-0 left-0 w-full z-50 p-4 transition-transform duration-300 flex justify-center">
             <div class="bg-card w-full max-w-[480px] rounded-2xl p-5 shadow-2xl border border-white/10 max-h-[85vh] overflow-y-auto">
                 <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold text-accentGold">旅程設定</h3><button @click="isSettingsOpen = false" class="text-textSub/50 hover:text-white"><i class="fas fa-times text-xl"></i></button></div>
@@ -331,13 +341,12 @@
     <!-- Script Logic -->
     <script>
         const { createApp, ref, computed, onMounted } = Vue;
-        const STORAGE_KEY = 'travel_app_data_stable'; // 固定 Key，不再更改
+        const STORAGE_KEY = 'travel_app_data_stable'; // 固定 Key
 
         createApp({
             setup() {
                 const typeConfig = { sightseeing: { color: '#F87171', icon: 'fas fa-camera', label: '景點' }, food: { color: '#FB923C', icon: 'fas fa-utensils', label: '美食' }, transport: { color: '#60A5FA', icon: 'fas fa-train', label: '交通' }, shopping: { color: '#C084FC', icon: 'fas fa-shopping-bag', label: '購物' }, hotel: { color: '#9CA3AF', icon: 'fas fa-bed', label: '住宿' } };
                 const expenseCategories = { food: { label: '食', icon: 'fas fa-utensils', color: '#F87171' }, drink: { label: '喝', icon: 'fas fa-coffee', color: '#60A5FA' }, play: { label: '玩', icon: 'fas fa-gamepad', color: '#FBBF24' }, other: { label: '樂', icon: 'fas fa-shopping-bag', color: '#A78BFA' } };
-                const transitData = { kanto: ['JR 山手線', 'JR 中央線', 'JR 京葉線', '東京地鐵 銀座線', '東京地鐵 丸之內線', '東京地鐵 日比谷線', '都營大江戶線', '都營淺草線', '京成電鐵 (成田)', '東京單軌電車'], kansai: ['JR 大阪環狀線', 'JR 京都線', 'JR 夢咲線 (USJ)', '大阪地鐵 御堂筋線', '大阪地鐵 中央線', '阪急電鐵', '阪神電鐵', '京阪電車', '南海電鐵 (關空)', '近鐵電車'] };
 
                 const trips = ref([]);
                 const currentTripId = ref(null);
@@ -469,6 +478,29 @@
                 const getTypeConfig = (type) => typeConfig[type] || typeConfig.sightseeing;
                 const getDisplayDate = (dayIdx) => { if (!safeCurrentTrip.value.startDate) return `D${dayIdx + 1}`; const date = new Date(safeCurrentTrip.value.startDate); date.setDate(date.getDate() + dayIdx); return `${date.getMonth() + 1}/${date.getDate()}`; };
                 const openGoogleMap = (query) => { if(!query) return alert('請輸入地點'); window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, '_blank'); };
+                
+                // New Function: Open Route Map
+                const openRouteMap = (item) => {
+                    const list = sortedItinerary.value;
+                    const index = list.findIndex(i => i.id === item.id);
+                    
+                    if (index > 0) {
+                        const prevItem = list[index - 1];
+                        const origin = prevItem.location || prevItem.title;
+                        const dest = item.location || item.title;
+                        
+                        if (origin && dest) {
+                            // Construct Google Maps Directions URL
+                            const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}&travelmode=transit`;
+                            window.open(url, '_blank');
+                        } else {
+                            alert("無法取得起點或終點資訊");
+                        }
+                    } else {
+                        alert("這是當天的第一站，無法規劃路線");
+                    }
+                };
+
                 const addNewDay = () => { 
                     const tripIdx = trips.value.findIndex(t => t.id === currentTripId.value);
                     if(tripIdx !== -1) {
@@ -600,7 +632,7 @@
 
                 onMounted(() => { loadData(); newExpense.value.date = new Date().toISOString().split('T')[0]; });
 
-                return { trips, currentTripId, safeCurrentTrip, currentTrip: safeCurrentTrip, viewMode, isDrawerOpen, showFlightPass, currentDayIndex, flightMode, isModalOpen, isSettingsOpen, isHotelModalOpen, form, settingsForm, hotelForm, newExpense, newPackingItem, currentFlightData, sortedItinerary, totalExpense, categoryStats, expenseCategories, budgetPercentage, budgetColor, typeConfig, getTypeConfig, transitData, openSettings, openEditModal, openHotelModal, openGoogleMap, saveItinerary, deleteItinerary, saveHotel, deleteHotel, saveSettings, deleteTrip, switchTrip, createNewTrip, addNewDay, addPackingItem, togglePackingItem, deletePackingItem, addExpense, deleteExpense, closeAllModals, saveData, getDisplayDate, exportData, importData, triggerImport };
+                return { trips, currentTripId, safeCurrentTrip, currentTrip: safeCurrentTrip, viewMode, isDrawerOpen, showFlightPass, currentDayIndex, flightMode, isModalOpen, isSettingsOpen, isHotelModalOpen, form, settingsForm, hotelForm, newExpense, newPackingItem, currentFlightData, sortedItinerary, totalExpense, categoryStats, expenseCategories, budgetPercentage, budgetColor, typeConfig, getTypeConfig, transitData, openSettings, openEditModal, openHotelModal, openGoogleMap, openRouteMap, saveItinerary, deleteItinerary, saveHotel, deleteHotel, saveSettings, deleteTrip, switchTrip, createNewTrip, addNewDay, addPackingItem, togglePackingItem, deletePackingItem, addExpense, deleteExpense, closeAllModals, saveData, getDisplayDate, exportData, importData, triggerImport };
             }
         }).mount('#app');
     </script>
