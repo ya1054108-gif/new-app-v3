@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Travel Pro v18</title>
+    <title>Travel Pro v19</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
@@ -40,7 +40,7 @@
         .slide-in-left { animation: slideInLeft 0.3s ease-out; }
         @keyframes slideInLeft { from { transform: translateX(-100%); } to { transform: translateX(0); } }
         .progress-bar { transition: width 0.5s ease-in-out; }
-        input[type="date"] { -webkit-appearance: none; appearance: none; display: block; min-height: 2.5rem; }
+        input[type="date"] { -webkit-appearance: none; appearance: none; display: block; min-height: 3rem; }
     </style>
 </head>
 <body class="flex justify-center w-full">
@@ -130,18 +130,16 @@
                                     <span class="font-bold">{{ item.transportLine || '移動' }}</span>
                                 </div>
                                 <div class="text-[10px] text-textSub/40" v-if="item.transportTime">約 {{ item.transportTime }} 分鐘</div>
+                                <div class="flex-1"></div><div class="text-[10px] text-accentGold font-bold">前往此處 <i class="fas fa-arrow-down ml-1"></i></div>
                             </div>
                             
                             <!-- 一般資訊 -->
                             <div class="flex justify-between items-start mb-1">
                                 <h3 class="font-bold text-base truncate pr-2">{{ item.title }}</h3>
                                 <div class="flex gap-1">
-                                    <!-- Google Maps 搜尋按鈕 -->
                                     <button @click.stop="openGoogleMap(item.location || item.title)" class="shrink-0 flex items-center gap-1 bg-accentBlue/10 px-2 py-1 rounded text-[10px] font-bold text-accentBlue hover:bg-accentBlue hover:text-white transition">
                                         <i class="fas fa-map-marker-alt"></i> 地點
                                     </button>
-                                    
-                                    <!-- 路線規劃按鈕 (第二站之後才顯示) -->
                                     <button v-if="index > 0" @click.stop="openRouteMap(item)" class="shrink-0 flex items-center gap-1 bg-accentTeal/10 px-2 py-1 rounded text-[10px] font-bold text-accentTeal hover:bg-accentTeal hover:text-white transition">
                                         <i class="fas fa-route"></i> 路線
                                     </button>
@@ -296,7 +294,7 @@
         <!-- 2. 住宿編輯 -->
         <div v-if="isHotelModalOpen" class="fixed bottom-0 left-0 w-full z-50 p-4 transition-transform duration-300 flex justify-center"><div class="bg-card w-full max-w-[480px] rounded-2xl p-5 shadow-2xl border border-white/10 max-h-[80vh] overflow-y-auto"><div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold text-accentGold">{{ hotelForm.id ? '編輯住宿' : '新增住宿' }}</h3><button @click="isHotelModalOpen = false" class="text-textSub/50 hover:text-white"><i class="fas fa-times text-xl"></i></button></div><div class="space-y-3"><input v-model="hotelForm.name" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white placeholder-white/30" placeholder="飯店名稱"><input v-model="hotelForm.address" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white placeholder-white/30" placeholder="地址"><input v-model="hotelForm.price" type="number" class="w-full bg-bg border border-border rounded-lg px-3 py-3 text-white placeholder-white/30 font-mono" placeholder="總價格 (¥)"><div class="grid grid-cols-2 gap-3"><input v-model="hotelForm.checkInDate" class="bg-bg border border-border rounded-lg px-3 py-2 text-white text-xs" placeholder="入: 12/01"><input v-model="hotelForm.checkInTime" class="bg-bg border border-border rounded-lg px-3 py-2 text-white text-xs font-mono" placeholder="15:00"></div><div class="grid grid-cols-2 gap-3"><input v-model="hotelForm.checkOutDate" class="bg-bg border border-border rounded-lg px-3 py-2 text-white text-xs" placeholder="退: 12/02"><input v-model="hotelForm.checkOutTime" class="bg-bg border border-border rounded-lg px-3 py-2 text-white text-xs font-mono" placeholder="11:00"></div><label class="flex items-center gap-2 cursor-pointer mt-2"><input type="checkbox" v-model="hotelForm.isFreeCancel" class="w-4 h-4 accent-accentGold"><span class="text-sm text-white">免費取消政策</span></label><input v-if="hotelForm.isFreeCancel" v-model="hotelForm.cancelDate" class="w-full bg-bg border border-border rounded-lg px-3 py-2 text-white text-sm" placeholder="取消期限 (例如: 11/30 18:00)"><button @click="saveHotel" class="w-full bg-accentBlue text-white font-bold py-3 rounded-lg mt-2 hover:bg-blue-600 transition">儲存</button></div></div></div>
 
-        <!-- 3. 設定 Modal -->
+        <!-- 3. 設定 Modal (修正 UI) -->
         <div v-if="isSettingsOpen" class="fixed bottom-0 left-0 w-full z-50 p-4 transition-transform duration-300 flex justify-center">
             <div class="bg-card w-full max-w-[480px] rounded-2xl p-5 shadow-2xl border border-white/10 max-h-[85vh] overflow-y-auto">
                 <div class="flex justify-between items-center mb-4"><h3 class="text-xl font-bold text-accentGold">旅程設定</h3><button @click="isSettingsOpen = false" class="text-textSub/50 hover:text-white"><i class="fas fa-times text-xl"></i></button></div>
@@ -341,7 +339,7 @@
     <!-- Script Logic -->
     <script>
         const { createApp, ref, computed, onMounted } = Vue;
-        const STORAGE_KEY = 'travel_app_data_stable'; // 固定 Key
+        const STORAGE_KEY = 'travel_app_data_stable_v19'; // New Stable Key
 
         createApp({
             setup() {
@@ -365,13 +363,22 @@
                 const newExpense = ref({ title: '', amount: '', payer: '我', date: '', category: 'food' });
                 const newPackingItem = ref('');
 
-                // Safe Data Access
+                // 1. Safe Access to Current Trip
                 const safeCurrentTrip = computed(() => {
                     const found = trips.value.find(t => t.id === currentTripId.value);
-                    return found || { name: 'Loading...', coverImage: '', days: [0], itinerary: [], expenses: [], packingList: [], accommodations: [], flight: { outbound: {}, inbound: {} }, budgets: {}, budget: 50000 };
+                    if (found) return found;
+                    
+                    // Fallback object (prevents crashes if ID is invalid or trips empty)
+                    return { 
+                        name: 'Loading...', coverImage: '', days: [0], 
+                        itinerary: [], expenses: [], packingList: [], 
+                        accommodations: [], flight: { outbound: {}, inbound: {} }, 
+                        budgets: { food: 0, drink: 0, play: 0, other: 0 }, 
+                        budget: 50000 
+                    };
                 });
 
-                const currentTrip = safeCurrentTrip; 
+                const currentTrip = safeCurrentTrip;
 
                 const currentFlightData = computed(() => {
                     const flight = safeCurrentTrip.value.flight || {};
@@ -380,7 +387,10 @@
                 
                 const sortedItinerary = computed(() => {
                     const list = safeCurrentTrip.value.itinerary || [];
-                    return list.filter(item => { const itemDay = (item.day !== undefined) ? item.day : 0; return itemDay === currentDayIndex.value; }).sort((a, b) => (a.time || '00:00').localeCompare(b.time || '00:00'));
+                    return list.filter(item => { 
+                        const itemDay = (item.day !== undefined) ? item.day : 0; 
+                        return itemDay === currentDayIndex.value; 
+                    }).sort((a, b) => (a.time || '00:00').localeCompare(b.time || '00:00'));
                 });
 
                 const totalExpense = computed(() => {
@@ -411,13 +421,14 @@
                     return '#EF4444'; // Red
                 });
 
-                // Load Data with Fallback for old versions
+                // 2. Robust Data Loading
                 const loadData = () => {
                     const saved = localStorage.getItem(STORAGE_KEY); 
                     if (saved) {
                         try { 
                             const parsed = JSON.parse(saved);
                             if (Array.isArray(parsed) && parsed.length > 0) {
+                                // Data Sanitization: Ensure all new fields exist in old data
                                 trips.value = parsed.map(t => ({
                                     ...t,
                                     budgets: t.budgets || { food: 15000, drink: 5000, play: 10000, other: 10000 },
@@ -427,19 +438,21 @@
                                     flight: t.flight || { outbound: {}, inbound: {} }
                                 }));
                                 currentTripId.value = trips.value[0].id;
-                            } else { createNewTrip(); }
-                        } catch (e) { createNewTrip(); }
-                    } else { 
-                        // Try loading from previous version v16 one last time
-                        const oldSaved = localStorage.getItem('travel_app_web_v16');
-                        if (oldSaved) {
-                             try { trips.value = JSON.parse(oldSaved); if(trips.value.length>0) currentTripId.value = trips.value[0].id; else createNewTrip(); } catch(e) { createNewTrip(); }
-                        } else {
-                             createNewTrip(); 
+                            } else {
+                                createNewTrip(); 
+                            }
+                        } catch (e) { 
+                            console.error("Data corrupted", e);
+                            createNewTrip(); 
                         }
+                    } else { 
+                        createNewTrip(); 
                     }
                 };
-                const saveData = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(trips.value));
+
+                const saveData = () => {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(trips.value));
+                };
                 
                 // Export / Import
                 const exportData = () => {
@@ -476,29 +489,28 @@
                 };
 
                 const getTypeConfig = (type) => typeConfig[type] || typeConfig.sightseeing;
-                const getDisplayDate = (dayIdx) => { if (!safeCurrentTrip.value.startDate) return `D${dayIdx + 1}`; const date = new Date(safeCurrentTrip.value.startDate); date.setDate(date.getDate() + dayIdx); return `${date.getMonth() + 1}/${date.getDate()}`; };
+                const getDisplayDate = (dayIdx) => { 
+                    if (!safeCurrentTrip.value.startDate) return `D${dayIdx + 1}`; 
+                    try {
+                        const date = new Date(safeCurrentTrip.value.startDate); 
+                        date.setDate(date.getDate() + dayIdx); 
+                        return `${date.getMonth() + 1}/${date.getDate()}`;
+                    } catch(e) { return `D${dayIdx + 1}`; }
+                };
+
                 const openGoogleMap = (query) => { if(!query) return alert('請輸入地點'); window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`, '_blank'); };
                 
-                // New Function: Open Route Map
                 const openRouteMap = (item) => {
                     const list = sortedItinerary.value;
                     const index = list.findIndex(i => i.id === item.id);
-                    
                     if (index > 0) {
                         const prevItem = list[index - 1];
                         const origin = prevItem.location || prevItem.title;
                         const dest = item.location || item.title;
-                        
                         if (origin && dest) {
-                            // Construct Google Maps Directions URL
-                            const url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}&travelmode=transit`;
-                            window.open(url, '_blank');
-                        } else {
-                            alert("無法取得起點或終點資訊");
-                        }
-                    } else {
-                        alert("這是當天的第一站，無法規劃路線");
-                    }
+                            window.open(`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}&travelmode=transit`, '_blank');
+                        } else { alert("無法取得起點或終點資訊"); }
+                    } else { alert("這是當天的第一站，無法規劃路線"); }
                 };
 
                 const addNewDay = () => { 
@@ -530,12 +542,29 @@
                     currentTripId.value = newId; isDrawerOpen.value = false; saveData();
                 };
 
-                const openEditModal = (item) => { form.value = { ...item, type: item.type || 'sightseeing', time: item.time || '09:00', title: item.title || '', location: item.location || '', notes: item.notes || '', transportLine: item.transportLine || '', transportTime: item.transportTime || '' }; isModalOpen.value = true; };
+                const openEditModal = (item) => { 
+                    // 3. Safe Defaults for Editing
+                    form.value = { 
+                        ...item, 
+                        type: item.type || 'sightseeing', 
+                        time: item.time || '09:00', 
+                        title: item.title || '', 
+                        location: item.location || '', 
+                        notes: item.notes || '', 
+                        transportLine: item.transportLine || '', 
+                        transportTime: item.transportTime || '' 
+                    }; 
+                    isModalOpen.value = true; 
+                };
                 
+                // 4. Robust Save Logic
                 const saveItinerary = () => {
                     if(!form.value.title) return alert("請輸入行程名稱！");
                     const tripIdx = trips.value.findIndex(t => t.id === currentTripId.value);
                     if(tripIdx === -1) return;
+                    
+                    // Safety check
+                    if (!trips.value[tripIdx].itinerary) trips.value[tripIdx].itinerary = [];
                     
                     const newItem = { 
                         ...form.value, 
@@ -543,6 +572,7 @@
                         type: form.value.type || 'sightseeing' 
                     };
 
+                    // Copy array to trigger reactivity reliably
                     let list = [...(trips.value[tripIdx].itinerary || [])];
 
                     if(form.value.id) { 
@@ -573,9 +603,12 @@
                     if(!hotelForm.value.name) return;
                     const tripIdx = trips.value.findIndex(t => t.id === currentTripId.value);
                     if(tripIdx === -1) return;
+                    if(!trips.value[tripIdx].accommodations) trips.value[tripIdx].accommodations = []; // Safety init
+
                     let list = [...(trips.value[tripIdx].accommodations || [])];
                     if(hotelForm.value.id) { const idx = list.findIndex(h => h.id === hotelForm.value.id); list[idx] = hotelForm.value; } 
                     else { list.push({ ...hotelForm.value, id: Date.now() }); }
+                    
                     trips.value[tripIdx].accommodations = list;
                     isHotelModalOpen.value = false; saveData();
                 };
@@ -588,8 +621,9 @@
                 const addExpense = () => {
                     if(!newExpense.value.title || !newExpense.value.amount) return;
                     const tripIdx = trips.value.findIndex(t => t.id === currentTripId.value);
+                    if(!trips.value[tripIdx].expenses) trips.value[tripIdx].expenses = []; // Safety init
+                    
                     const expDate = newExpense.value.date || new Date().toISOString().split('T')[0];
-                    if(!trips.value[tripIdx].expenses) trips.value[tripIdx].expenses = [];
                     trips.value[tripIdx].expenses.unshift({ 
                         ...newExpense.value, 
                         id: Date.now(), 
@@ -632,7 +666,7 @@
 
                 onMounted(() => { loadData(); newExpense.value.date = new Date().toISOString().split('T')[0]; });
 
-                return { trips, currentTripId, safeCurrentTrip, currentTrip: safeCurrentTrip, viewMode, isDrawerOpen, showFlightPass, currentDayIndex, flightMode, isModalOpen, isSettingsOpen, isHotelModalOpen, form, settingsForm, hotelForm, newExpense, newPackingItem, currentFlightData, sortedItinerary, totalExpense, categoryStats, expenseCategories, budgetPercentage, budgetColor, typeConfig, getTypeConfig, transitData, openSettings, openEditModal, openHotelModal, openGoogleMap, openRouteMap, saveItinerary, deleteItinerary, saveHotel, deleteHotel, saveSettings, deleteTrip, switchTrip, createNewTrip, addNewDay, addPackingItem, togglePackingItem, deletePackingItem, addExpense, deleteExpense, closeAllModals, saveData, getDisplayDate, exportData, importData, triggerImport };
+                return { trips, currentTripId, safeCurrentTrip, currentTrip: safeCurrentTrip, viewMode, isDrawerOpen, showFlightPass, currentDayIndex, flightMode, isModalOpen, isSettingsOpen, isHotelModalOpen, form, settingsForm, hotelForm, newExpense, newPackingItem, currentFlightData, sortedItinerary, totalExpense, categoryStats, expenseCategories, budgetPercentage, budgetColor, typeConfig, getTypeConfig, openSettings, openEditModal, openHotelModal, openGoogleMap, openRouteMap, saveItinerary, deleteItinerary, saveHotel, deleteHotel, saveSettings, deleteTrip, switchTrip, createNewTrip, addNewDay, addPackingItem, togglePackingItem, deletePackingItem, addExpense, deleteExpense, closeAllModals, saveData, getDisplayDate, exportData, importData, triggerImport };
             }
         }).mount('#app');
     </script>
